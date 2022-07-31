@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import ComboSquare from "./ComboSquare.vue";
 
+/********************************************************
+ * PROPS
+ *********************************************************/
+defineProps<{
+  title: string;
+}>();
+
 const emits = defineEmits(["resetStats", "closeModal"]);
 
 /********************************************************
@@ -20,7 +27,7 @@ function handleClearStats() {
 <template>
   <div class="help-modal">
     <h1 class="modal-header">
-      <span>How to Play</span>
+      <span>{{ title }}</span>
       <span class="close-modal" @click="emits('closeModal')">
         <svg
           width="24"
@@ -37,49 +44,51 @@ function handleClearStats() {
       </span>
     </h1>
 
-    <div class="modal-body">
-      <h5>Introduction</h5>
-      <p>Enter the <strong>Combo</strong> as quickly as possible.</p>
-      <p>Each <strong>miss</strong> counts against you.</p>
-      <p>The quicker you are the better your <strong>score</strong>.</p>
+    <slot>
+      <div class="modal-body">
+        <h5>Introduction</h5>
+        <p>Enter the <strong>Combo</strong> as quickly as possible.</p>
+        <p>Each <strong>miss</strong> counts against you.</p>
+        <p>The quicker you are the better your <strong>score</strong>.</p>
 
-      <div class="divider" />
+        <div class="divider" />
 
-      <h5>Guide</h5>
-      <p>
-        When you see an arrow:
+        <h5>Guide</h5>
+        <p>
+          When you see an arrow:
 
-        <ComboSquare :direction="38" size="small" />
-      </p>
-      <p>
-        Press the matching arrow on your keyboard to light it up:
+          <ComboSquare :direction="38" size="small" />
+        </p>
+        <p>
+          Press the matching arrow on your keyboard to light it up:
 
-        <ComboSquare :direction="38" :active="true" size="small" />
-      </p>
-      <p>Keep going until you make a <strong>Combo</strong>!</p>
+          <ComboSquare :direction="38" :active="true" size="small" />
+        </p>
+        <p>Keep going until you make a <strong>Combo</strong>!</p>
 
-      <div class="divider" />
-      <h5>Tips</h5>
-      <p>
-        Press <strong><code>[return]</code></strong> or
-        <strong><code>[space]</code></strong> to start the game.
-      </p>
+        <div class="divider" />
+        <h5>Tips</h5>
+        <p>
+          Press <strong><code>[return]</code></strong> or
+          <strong><code>[space]</code></strong> to start the game.
+        </p>
 
-      <div class="divider" />
+        <div class="divider" />
 
-      <h5>Can you find the secret?</h5>
-      <p>
-        You must <strong><code>shift</code></strong> your view of
-        <strong><code>DOWN</code></strong> <strong><code>DOWN</code></strong
-        >&nbsp; <strong><code>UP</code></strong
-        >.
-      </p>
+        <h5>Can you find the secret?</h5>
+        <p>
+          You must <strong><code>shift</code></strong> your view of
+          <strong><code>DOWN</code></strong> <strong><code>DOWN</code></strong
+          >&nbsp; <strong><code>UP</code></strong
+          >.
+        </p>
 
-      <div class="divider" />
+        <div class="divider" />
 
-      <h5>Want to start fresh?</h5>
-      <button @click="handleClearStats">Reset game stats</button>
-    </div>
+        <h5>Want to start fresh?</h5>
+        <button @click="handleClearStats">Reset game stats</button>
+      </div>
+    </slot>
   </div>
 </template>
 
