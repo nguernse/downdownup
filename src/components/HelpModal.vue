@@ -3,6 +3,13 @@ import ComboSquare from "./ComboSquare.vue";
 
 const emits = defineEmits(["resetStats", "closeModal"]);
 
+/********************************************************
+ * METHODS
+ *********************************************************/
+
+/**
+ * Resets a user's games tates from localStorage
+ */
 function handleClearStats() {
   localStorage.removeItem("combarrowStats");
 

@@ -7,7 +7,6 @@ import HelpModal from "./HelpModal.vue";
 const emits = defineEmits(["activeHelp", "resetStats"]);
 const state = reactive({
   showHelp: false,
-  firstTime: false,
 });
 
 function toggleHelp() {
@@ -21,9 +20,8 @@ onMounted(() => {
     localStorage.getItem("combarrowStats") || "null"
   );
 
+  // If first-time user, display help modal
   if (combarrowStats === null) {
-    console.log("first time player!!!");
-    state.firstTime = true;
     toggleHelp();
   }
 });

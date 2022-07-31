@@ -23,7 +23,7 @@ import GameTitle from "./components/GameTitle.vue";
 const state: AppState = reactive({
   stage: "waiting",
   combination: generateComboSet(),
-  timer: 3,
+  countdownClock: 3,
   comboIndex: 0,
   guessCount: 0,
   bestCombo: 0,
@@ -36,7 +36,8 @@ const state: AppState = reactive({
   isDelay: false,
   secretCombo: 0,
   secretScore: 5000,
-  secretCount: 0,
+  secretPerfectRoundCount: 0,
+  secretRoundCount: 0,
   secretStartTime: 0,
   secretEndTime: 0,
   secretDurationTime: Infinity,
@@ -54,6 +55,9 @@ const isDduMode = computed(() => {
  * METHODS
  ******************************************************/
 
+/**
+ * Resets the Game's state to a clean slate for next round.
+ */
 function resetState() {
   state.stage = "waiting";
   state.guessCount = 0;
@@ -71,7 +75,8 @@ function resetState() {
   if (!isDduMode.value) {
     state.secretCombo = 0;
     state.secretScore = 5000;
-    state.secretCount = 0;
+    state.secretPerfectRoundCount = 0;
+    state.secretRoundCount = 0;
     state.secretStartTime = 0;
     state.secretEndTime = 0;
     state.secretDurationTime = Infinity;
@@ -90,17 +95,6 @@ function restartGame() {
   startGame();
 }
 
-function startSecretTimer() {
-  return setInterval(function () {
-    console.log("Dock score", state.missedCount);
-    state.secretScore -= state.missedCount + 1;
-
-    if (state.secretScore <= 0) {
-      endSecretGame();
-    }
-  });
-}
-
 /**
  * Starts the combination game. Steps:
  * 1. Countdown to start of game
@@ -108,15 +102,14 @@ function startSecretTimer() {
  * 3. Monitor user input
  */
 function startGame() {
-  console.log("start game");
   state.stage = "countdown";
 
-  // Trigger timer
+  // Trigger countdownClock
   const countdownInterval = setInterval(function () {
-    state.timer -= 1;
+    state.countdownClock -= 1;
 
-    if (state.timer === 0) {
-      state.timer = 3;
+    if (state.countdownClock === 0) {
+      state.countdownClock = 3;
       state.stage = "playing";
       state.startTime = new Date().getTime();
 
@@ -131,33 +124,12 @@ function startGame() {
   }, 1000);
 }
 
-function checkSecretCombo(keyCode: number, shiftKey = false) {
-  if (!shiftKey) {
-    return;
-  }
-
-  // Check for secret mode
-  if (state.secretCombo === 0 && keyCode === DirectionCodes.Down) {
-    state.secretCombo += 1;
-    return;
-  }
-  if (state.secretCombo === 1 && keyCode === DirectionCodes.Down) {
-    state.secretCombo += 1;
-    return;
-  }
-  // If you hit here, you have found the secret!
-  if (state.secretCombo === 2 && keyCode === DirectionCodes.Up) {
-    state.secretCombo += 1;
-    state.secretScore = 5000;
-    return;
-  }
-}
-
 /**
  * Event Listener to observe what the user types on the keyboard.
  * This is how we monitor the game.
  *
- * @param keyCode {number} Keystroke value entered by the user
+ * @param keyCode {number} - Keycode value for keystroke
+ * @param shiftKey {boolean} - Flag for if shift key is used during entering a keycode.
  */
 function listenKey({
   keyCode,
@@ -210,48 +182,6 @@ function listenKey({
   }
 }
 
-function regenerateGame() {
-  console.log("regenerate game");
-  state.comboIndex = 0;
-  state.isDelay = true;
-  state.secretCount += 1;
-
-  setTimeout(() => {
-    state.missedCount = 0;
-    state.isDelay = false;
-    state.combination = generateComboSet();
-    state.secretStartTime = new Date().getTime();
-    state.secretEndTime = 0;
-    state.secretDurationTime = 0;
-    state.secretStartTime = new Date().getTime();
-  }, 500);
-}
-
-function checkForSecretBonus() {
-  if (!state.isMissed && state.comboIndex > 4) {
-    state.secretScore += 5 * state.secretCount;
-  }
-
-  console.log("secret durationt time", state.secretDurationTime);
-  if (state.secretDurationTime < 1) {
-    state.secretScore += 5000;
-  } else if (state.secretDurationTime >= 1 && state.secretDurationTime <= 1.5) {
-    state.secretScore += 2500;
-  } else if (state.secretDurationTime > 1.5 && state.secretDurationTime < 2.0) {
-    state.secretScore += 1000;
-  }
-}
-
-function endSecretGame() {
-  console.log("end secret game...");
-  clearInterval(state.secretInterval);
-  state.finalSecretEndTime = new Date().getTime();
-  state.finalSecretDuration =
-    (state.finalSecretEndTime - state.finalSecretStartTime) / 1000;
-  saveGameStats();
-  resetState();
-  state.secretCombo = 0;
-}
 /**
  * Ends the current game and displays your score
  */
@@ -268,6 +198,10 @@ function endGame() {
   }, 500); // sync ending to color fill transition of last block 0.5s
 }
 
+/**
+ * Method to handle calculating end game stats in normal mode.
+ * If in secret mode it calculates durations for bonus point structure and continues the game.
+ */
 function handleFinishCheck() {
   state.bestCombo = Math.max(state.currentStreak, state.bestCombo);
 
@@ -305,8 +239,8 @@ function handleMiss() {
   state.isMissed = true;
 
   if (isDduMode.value) {
-    state.secretScore -= 1;
-    state.secretCount = 0;
+    state.secretScore -= 1 + 100 * state.secretRoundCount;
+    state.secretPerfectRoundCount = 0;
   }
 
   setTimeout(() => {
@@ -314,13 +248,15 @@ function handleMiss() {
   }, 300); // sync toggling missed flag to time of shake animation 0.3s
 }
 
+/**
+ * Method to store a user's game stats to persist in localStorage
+ */
 function saveGameStats() {
   let combarrowStats: GameStatistics = JSON.parse(
     localStorage.getItem("combarrowStats") || "null"
   );
 
   if (combarrowStats === null) {
-    console.log("first time states");
     combarrowStats = {
       numGames: isDduMode.value ? 0 : 1,
       perfectCount: isDduMode.value ? 0 : state.bestCombo === 5 ? 1 : 0,
@@ -348,9 +284,6 @@ function saveGameStats() {
     );
   }
 
-  console.log("secret duration", state.finalSecretDuration);
-  console.log("stats secret run", combarrowStats.secretRun);
-  console.log("save combarrowstats", combarrowStats);
   localStorage.setItem("combarrowStats", JSON.stringify(combarrowStats));
 }
 
@@ -373,6 +306,111 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("keyup", listenKey);
 });
+
+/******************************************************
+ * SECRET GAME HELPERS
+ ******************************************************/
+/**
+ * Method to start interval that decrements secretScore until it hits zero
+ */
+function startSecretTimer() {
+  return setInterval(function () {
+    state.secretScore -= state.missedCount + 1;
+
+    if (state.secretScore <= 0) {
+      endSecretGame();
+    }
+  });
+}
+
+/**
+ * Method to identify when the secret combo has been entered.
+ *
+ * @param keyCode {number} - Keycode value for keystroke
+ * @param shiftKey {boolean} - Flag for if shift key is used during entering a keycode.
+ * This is important to unlocking the secret mode
+ */
+function checkSecretCombo(keyCode: number, shiftKey = false) {
+  if (!shiftKey) {
+    return;
+  }
+
+  // Check for secret mode
+  if (state.secretCombo === 0 && keyCode === DirectionCodes.Down) {
+    state.secretCombo += 1;
+    return;
+  }
+  if (state.secretCombo === 1 && keyCode === DirectionCodes.Down) {
+    state.secretCombo += 1;
+    return;
+  }
+  // If you hit here, you have found the secret!
+  if (state.secretCombo === 2 && keyCode === DirectionCodes.Up) {
+    state.secretCombo += 1;
+    state.secretScore = 5000;
+    return;
+  }
+}
+
+/**
+ * Method to continually re-create a new row of arrow combinations.
+ */
+function regenerateGame() {
+  // increment perfect round counts
+  if (!state.isMissed && state.comboIndex > 4) {
+    state.secretPerfectRoundCount += 1;
+  } else {
+    state.secretPerfectRoundCount = 0;
+  }
+
+  state.comboIndex = 0;
+  state.isDelay = true;
+  state.secretRoundCount += 1;
+
+  setTimeout(() => {
+    state.missedCount = 0;
+    state.isDelay = false;
+    state.combination = generateComboSet();
+    state.secretStartTime = new Date().getTime();
+    state.secretEndTime = 0;
+    state.secretDurationTime = 0;
+    state.secretStartTime = new Date().getTime();
+  }, 500);
+}
+
+/**
+ * Method to add bonus scores to the secret score:
+ * 1. If you get a perfect combo add points!
+ * 2. If you get a duration under 1 second mega points!
+ * 3. If you get a duration between 1-1.5 seconds big points!
+ * 4. If you get a duration under 2 seconds some points!
+ */
+function checkForSecretBonus() {
+  if (!state.isMissed && state.comboIndex > 4) {
+    state.secretScore += 5 * state.secretPerfectRoundCount;
+  }
+
+  if (state.secretDurationTime < 1) {
+    state.secretScore += 5000;
+  } else if (state.secretDurationTime >= 1 && state.secretDurationTime <= 1.5) {
+    state.secretScore += 3000;
+  } else if (state.secretDurationTime > 1.5 && state.secretDurationTime < 2.0) {
+    state.secretScore += 1500;
+  }
+}
+
+/**
+ * Method to stop the secret game and go back to normal mode.
+ */
+function endSecretGame() {
+  clearInterval(state.secretInterval);
+  state.finalSecretEndTime = new Date().getTime();
+  state.finalSecretDuration =
+    (state.finalSecretEndTime - state.finalSecretStartTime) / 1000;
+  saveGameStats();
+  resetState();
+  state.secretCombo = 0;
+}
 </script>
 
 <template>
@@ -406,7 +444,7 @@ onUnmounted(() => {
 
         <DisplayNumber
           v-else-if="state.stage === 'countdown'"
-          :display-number="state.timer"
+          :display-number="state.countdownClock"
         />
 
         <div v-else-if="state.stage === 'end'">
