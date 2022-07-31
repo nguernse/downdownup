@@ -6,7 +6,7 @@ defineProps<{
 
 <template>
   <h1 class="game-title">
-    Down Down Down <span :class="{ ddu: dduMode }">Up</span>
+    Down Down <span :class="{ ddu: dduMode }">Up</span>
   </h1>
 </template>
 
