@@ -8,6 +8,7 @@ import { DirectionCodes, KeyCodes } from "./utils/enums";
 import type { GameStatistics, AppState } from "./utils/interfaces";
 import { onMounted, onUnmounted, reactive, computed } from "vue";
 import HelpButton from "./components/HelpButton.vue";
+import StatsButton from "./components/StatsButton.vue";
 import ComboSquare from "./components/ComboSquare.vue";
 import OneRow from "./components/OneRow.vue";
 import TheGrid from "./components/TheGrid.vue";
@@ -415,6 +416,8 @@ function endSecretGame() {
 
 <template>
   <HelpButton @activeHelp="activateHelp" @resetStats="resetState" />
+  <StatsButton @activeStats="activateHelp" />
+
   <GameTitle :ddu-mode="isDduMode" />
 
   <section>

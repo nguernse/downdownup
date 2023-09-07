@@ -32,6 +32,7 @@ onMounted(() => {
     v-if="state.showHelp"
     @closeModal="toggleHelp"
     @resetStats="emits('resetStats')"
+    title="How to Play"
   />
   <button class="help-btn" @click="toggleHelp">
     <IconQuestion />

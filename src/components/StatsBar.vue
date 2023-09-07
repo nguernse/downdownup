@@ -16,6 +16,8 @@ const state: GameStatistics = reactive({
 });
 
 const percentPerfect = computed(() => {
+  if (state.numGames === 0) return "0";
+
   const percent = (state.perfectCount / state.numGames) * 100;
 
   return `${percent.toFixed(0)}%`;
