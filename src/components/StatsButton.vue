@@ -15,17 +15,6 @@ function toggleStats() {
 
   emits("activeStats", state.showStats);
 }
-
-onMounted(() => {
-  const combarrowStats: GameStatistics = JSON.parse(
-    localStorage.getItem("combarrowStats") || "null"
-  );
-
-  // If first-time user, display help modal
-  if (combarrowStats === null) {
-    toggleStats();
-  }
-});
 </script>
 
 <template>
