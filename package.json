@@ -1,6 +1,7 @@
 {
   "name": "downdownup",
   "version": "0.0.0",
+  "private": false,
   "homepage": "https://github.com/nguernse/downdownup",
   "scripts": {
     "dev": "vite",
