@@ -2,8 +2,8 @@
 /******************************************************
  * IMPORTS
  ******************************************************/
-import { onMounted, reactive, computed } from "vue";
-import type { GameStatistics } from "../utils/interfaces";
+import { onMounted, reactive, computed } from 'vue'
+import type { GameStatistics } from '../utils/interfaces'
 
 /******************************************************
  * STATE
@@ -12,32 +12,32 @@ const state: GameStatistics = reactive({
   numGames: 0,
   perfectCount: 0,
   bestTime: 0,
-  secretRun: 0,
-});
+  secretRun: 0
+})
 
 const percentPerfect = computed(() => {
-  if (state.numGames === 0) return "0";
+  if (state.numGames === 0) return '0'
 
-  const percent = (state.perfectCount / state.numGames) * 100;
+  const percent = (state.perfectCount / state.numGames) * 100
 
-  return `${percent.toFixed(0)}%`;
-});
+  return `${percent.toFixed(0)}%`
+})
 
 /******************************************************
  * LIFECYCLE HOOKS
  ******************************************************/
 onMounted(() => {
   const combarrowStats: GameStatistics = JSON.parse(
-    localStorage.getItem("combarrowStats") || "null"
-  );
+    localStorage.getItem('combarrowStats') || 'null'
+  )
 
   if (combarrowStats !== null) {
-    state.numGames = combarrowStats.numGames;
-    state.perfectCount = combarrowStats.perfectCount;
-    state.bestTime = combarrowStats.bestTime;
-    state.secretRun = combarrowStats.secretRun;
+    state.numGames = combarrowStats.numGames
+    state.perfectCount = combarrowStats.perfectCount
+    state.bestTime = combarrowStats.bestTime
+    state.secretRun = combarrowStats.secretRun
   }
-});
+})
 </script>
 
 <template>
@@ -61,7 +61,7 @@ onMounted(() => {
       </div>
       <div class="stat-block">
         <span class="stat-value"
-          >{{ state.secretRun ? state.secretRun.toFixed(2) + "s" : "🤫" }}
+          >{{ state.secretRun ? state.secretRun.toFixed(2) + 's' : '🤫' }}
         </span>
         <span class="stat-label"> Secret Run </span>
       </div>

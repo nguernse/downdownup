@@ -1,22 +1,19 @@
 <script setup lang="ts">
-import IconUp from "./icons/IconUp.vue";
-import IconRight from "./icons/IconRight.vue";
-import IconDown from "./icons/IconDown.vue";
-import IconLeft from "./icons/IconLeft.vue";
+import IconUp from './icons/IconUp.vue'
+import IconRight from './icons/IconRight.vue'
+import IconDown from './icons/IconDown.vue'
+import IconLeft from './icons/IconLeft.vue'
 
 defineProps<{
-  direction: number;
-  active?: boolean;
-  isPerfect?: boolean;
-  size?: string;
-}>();
+  direction: number
+  active?: boolean
+  isPerfect?: boolean
+  size?: string
+}>()
 </script>
 
 <template>
-  <div
-    class="square"
-    :class="{ active: active, perfect: isPerfect, small: size === 'small' }"
-  >
+  <div class="square" :class="{ active: active, perfect: isPerfect, small: size === 'small' }">
     <IconLeft v-if="direction == 37" class="icon" :size="size" />
     <IconUp v-if="direction == 38" class="icon" :size="size" />
     <IconRight v-if="direction == 39" class="icon" :size="size" />

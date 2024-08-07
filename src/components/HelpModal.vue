@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import ComboSquare from "./ComboSquare.vue";
+import ComboSquare from './ComboSquare.vue'
 
 /********************************************************
  * PROPS
  *********************************************************/
 defineProps<{
-  title: string;
-}>();
+  title: string
+}>()
 
-const emits = defineEmits(["resetStats", "closeModal"]);
+const emits = defineEmits(['resetStats', 'closeModal'])
 
 /********************************************************
  * METHODS
@@ -18,9 +18,9 @@ const emits = defineEmits(["resetStats", "closeModal"]);
  * Resets a user's games tates from localStorage
  */
 function handleClearStats() {
-  localStorage.removeItem("combarrowStats");
+  localStorage.removeItem('combarrowStats')
 
-  emits("resetStats");
+  emits('resetStats')
 }
 </script>
 
@@ -69,8 +69,8 @@ function handleClearStats() {
         <div class="divider" />
         <h5>Tips</h5>
         <p>
-          Press <strong><code>[return]</code></strong> or
-          <strong><code>[space]</code></strong> to start the game.
+          Press <strong><code>[return]</code></strong> or <strong><code>[space]</code></strong> to
+          start the game.
         </p>
 
         <div class="divider" />

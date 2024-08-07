@@ -2,7 +2,7 @@ enum DirectionCodes {
   Left = 37,
   Up = 38,
   Right = 39,
-  Down = 40,
+  Down = 40
 }
 
 enum KeyCodes {
@@ -11,7 +11,7 @@ enum KeyCodes {
   Right = DirectionCodes.Right,
   Down = DirectionCodes.Down,
   Space = 32,
-  Return = 13,
+  Return = 13
 }
 
-export { DirectionCodes, KeyCodes };
+export { DirectionCodes, KeyCodes }

@@ -5,5 +5,5 @@
  * @param targets Array<number> List of target values allowed
  */
 export default function checkMatch(keyCode: number, targets: Array<number>) {
-  return targets.indexOf(keyCode) > -1;
+  return targets.indexOf(keyCode) > -1
 }

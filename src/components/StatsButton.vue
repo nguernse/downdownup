@@ -1,32 +1,27 @@
 <script setup lang="ts">
-import type { GameStatistics } from "@/utils/interfaces";
-import { reactive, onMounted } from "vue";
-import IconAwards from "./icons/IconAwards.vue";
-import StatsBar from "./StatsBar.vue";
-import HelpModal from "./HelpModal.vue";
+import { reactive } from 'vue'
+import IconAwards from './icons/IconAwards.vue'
+import StatsBar from './StatsBar.vue'
+import HelpModal from './HelpModal.vue'
 
-const emits = defineEmits(["activeStats"]);
+const emits = defineEmits(['activeStats'])
 const state = reactive({
-  showStats: false,
-});
+  showStats: false
+})
 
 function toggleStats() {
-  state.showStats = !state.showStats;
+  state.showStats = !state.showStats
 
-  emits("activeStats", state.showStats);
+  emits('activeStats', state.showStats)
 }
 </script>
 
 <template>
-  <HelpModal
-    v-if="state.showStats"
-    @closeModal="toggleStats"
-    title="Game Statistics"
-  >
+  <HelpModal v-if="state.showStats" @closeModal="toggleStats" title="Game Statistics">
     <StatsBar />
   </HelpModal>
 
-  <button class="stats-btn" @click="toggleStats">
+  <button @click="toggleStats" class="stats-btn">
     <IconAwards />
   </button>
 </template>

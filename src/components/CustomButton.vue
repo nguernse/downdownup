@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
-  isEnd: boolean;
-}>();
+  isEnd: boolean
+}>()
 </script>
 
 <template>

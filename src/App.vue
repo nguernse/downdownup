@@ -2,27 +2,27 @@
 /******************************************************
  * IMPORTS
  ******************************************************/
-import checkMatch from "./utils/checkMatch";
-import { generateComboSet } from "./utils/generateCombos";
-import { DirectionCodes, KeyCodes } from "./utils/enums";
-import type { GameStatistics, AppState } from "./utils/interfaces";
-import { onMounted, onUnmounted, reactive, computed } from "vue";
-import HelpButton from "./components/HelpButton.vue";
-import StatsButton from "./components/StatsButton.vue";
-import ComboSquare from "./components/ComboSquare.vue";
-import OneRow from "./components/OneRow.vue";
-import TheGrid from "./components/TheGrid.vue";
-import CustomButton from "./components/CustomButton.vue";
-import DisplayNumber from "./components/DisplayNumber.vue";
-import ScoreCard from "./components/ScoreCard.vue";
-import GameTitle from "./components/GameTitle.vue";
+import checkMatch from './utils/checkMatch'
+import { generateComboSet } from './utils/generateCombos'
+import { DirectionCodes, KeyCodes } from './utils/enums'
+import type { GameStatistics, AppState } from './utils/interfaces'
+import { onMounted, onUnmounted, reactive, computed } from 'vue'
+import HelpButton from './components/HelpButton.vue'
+import StatsButton from './components/StatsButton.vue'
+import ComboSquare from './components/ComboSquare.vue'
+import OneRow from './components/OneRow.vue'
+import TheGrid from './components/TheGrid.vue'
+import CustomButton from './components/CustomButton.vue'
+import DisplayNumber from './components/DisplayNumber.vue'
+import ScoreCard from './components/ScoreCard.vue'
+import GameTitle from './components/GameTitle.vue'
 
 /******************************************************
  * STATE
  ******************************************************/
 
 const state: AppState = reactive({
-  stage: "waiting",
+  stage: 'waiting',
   combination: generateComboSet(),
   countdownClock: 3,
   comboIndex: 0,
@@ -42,15 +42,15 @@ const state: AppState = reactive({
   secretStartTime: 0,
   secretEndTime: 0,
   secretDurationTime: Infinity,
-  secretInterval: null,
+  secretInterval: undefined,
   finalSecretStartTime: 0,
   finalSecretEndTime: 0,
-  finalSecretDuration: 0,
-});
+  finalSecretDuration: 0
+})
 
 const isDduMode = computed(() => {
-  return state.secretCombo > 2;
-});
+  return state.secretCombo > 2
+})
 
 /******************************************************
  * METHODS
@@ -60,31 +60,31 @@ const isDduMode = computed(() => {
  * Resets the Game's state to a clean slate for next round.
  */
 function resetState() {
-  state.stage = "waiting";
-  state.guessCount = 0;
-  state.comboIndex = 0;
-  state.bestCombo = 0;
-  state.currentStreak = 0;
-  state.startTime = 0;
-  state.endTime = 0;
-  state.durationTime = Infinity;
-  state.missedCount = 0;
-  state.isMissed = false;
-  state.isDelay = false;
-  state.combination = generateComboSet();
+  state.stage = 'waiting'
+  state.guessCount = 0
+  state.comboIndex = 0
+  state.bestCombo = 0
+  state.currentStreak = 0
+  state.startTime = 0
+  state.endTime = 0
+  state.durationTime = Infinity
+  state.missedCount = 0
+  state.isMissed = false
+  state.isDelay = false
+  state.combination = generateComboSet()
 
   if (!isDduMode.value) {
-    state.secretCombo = 0;
-    state.secretScore = 5000;
-    state.secretPerfectRoundCount = 0;
-    state.secretRoundCount = 0;
-    state.secretStartTime = 0;
-    state.secretEndTime = 0;
-    state.secretDurationTime = Infinity;
-    state.secretInterval = null;
-    state.finalSecretStartTime = 0;
-    state.finalSecretEndTime = 0;
-    state.finalSecretDuration = 0;
+    state.secretCombo = 0
+    state.secretScore = 5000
+    state.secretPerfectRoundCount = 0
+    state.secretRoundCount = 0
+    state.secretStartTime = 0
+    state.secretEndTime = 0
+    state.secretDurationTime = Infinity
+    state.secretInterval = undefined
+    state.finalSecretStartTime = 0
+    state.finalSecretEndTime = 0
+    state.finalSecretDuration = 0
   }
 }
 
@@ -92,8 +92,8 @@ function resetState() {
  * Function to restart the state of the game.
  */
 function restartGame() {
-  resetState();
-  startGame();
+  resetState()
+  startGame()
 }
 
 /**
@@ -103,26 +103,26 @@ function restartGame() {
  * 3. Monitor user input
  */
 function startGame() {
-  state.stage = "countdown";
+  state.stage = 'countdown'
 
   // Trigger countdownClock
   const countdownInterval = setInterval(function () {
-    state.countdownClock -= 1;
+    state.countdownClock -= 1
 
     if (state.countdownClock === 0) {
-      state.countdownClock = 3;
-      state.stage = "playing";
-      state.startTime = new Date().getTime();
+      state.countdownClock = 3
+      state.stage = 'playing'
+      state.startTime = new Date().getTime()
 
       if (isDduMode.value) {
-        state.secretStartTime = new Date().getTime();
-        state.finalSecretStartTime = new Date().getTime();
-        state.secretInterval = startSecretTimer();
+        state.secretStartTime = new Date().getTime()
+        state.finalSecretStartTime = new Date().getTime()
+        state.secretInterval = startSecretTimer()
       }
 
-      clearInterval(countdownInterval);
+      clearInterval(countdownInterval)
     }
-  }, 1000);
+  }, 1000)
 }
 
 /**
@@ -132,54 +132,42 @@ function startGame() {
  * @param keyCode {number} - Keycode value for keystroke
  * @param shiftKey {boolean} - Flag for if shift key is used during entering a keycode.
  */
-function listenKey({
-  keyCode,
-  shiftKey,
-}: {
-  keyCode: number;
-  shiftKey: boolean;
-}) {
-  if (state.stage !== "playing" && state.stage !== "countdown") {
-    checkSecretCombo(keyCode, shiftKey);
+function listenKey({ keyCode, shiftKey }: { keyCode: number; shiftKey: boolean }) {
+  if (state.stage !== 'playing' && state.stage !== 'countdown') {
+    checkSecretCombo(keyCode, shiftKey)
   }
 
   if (state.isDelay) {
-    return;
+    return
   }
 
   /**
    * LISTEN DURING GAME
    */
-  if (state.stage === "playing") {
+  if (state.stage === 'playing') {
     // Ignore non-arrow keystrokes during game play
     // Do not want accidental hits to count towards score
     if (!(keyCode in DirectionCodes)) {
-      return;
+      return
     }
 
-    state.guessCount += 1;
-    const { direction } = state.combination[state.comboIndex];
+    state.guessCount += 1
+    const { direction } = state.combination[state.comboIndex]
 
     if (checkMatch(keyCode, [direction])) {
-      handleMatch();
+      handleMatch()
     } else {
-      handleMiss();
+      handleMiss()
     }
 
-    handleFinishCheck();
+    handleFinishCheck()
     /**
      * LISTEN AFTER GAME
      */
-  } else if (
-    state.stage === "end" &&
-    checkMatch(keyCode, [KeyCodes.Return, KeyCodes.Space])
-  ) {
-    restartGame();
-  } else if (
-    state.stage === "waiting" &&
-    checkMatch(keyCode, [KeyCodes.Return, KeyCodes.Space])
-  ) {
-    startGame();
+  } else if (state.stage === 'end' && checkMatch(keyCode, [KeyCodes.Return, KeyCodes.Space])) {
+    restartGame()
+  } else if (state.stage === 'waiting' && checkMatch(keyCode, [KeyCodes.Return, KeyCodes.Space])) {
+    startGame()
   }
 }
 
@@ -187,16 +175,16 @@ function listenKey({
  * Ends the current game and displays your score
  */
 function endGame() {
-  state.isDelay = true;
-  state.endTime = new Date().getTime();
-  state.durationTime = (state.endTime - state.startTime) / 1000;
+  state.isDelay = true
+  state.endTime = new Date().getTime()
+  state.durationTime = (state.endTime - state.startTime) / 1000
 
   setTimeout(() => {
-    state.stage = "end";
-    state.isDelay = false;
+    state.stage = 'end'
+    state.isDelay = false
 
-    saveGameStats();
-  }, 500); // sync ending to color fill transition of last block 0.5s
+    saveGameStats()
+  }, 500) // sync ending to color fill transition of last block 0.5s
 }
 
 /**
@@ -204,17 +192,16 @@ function endGame() {
  * If in secret mode it calculates durations for bonus point structure and continues the game.
  */
 function handleFinishCheck() {
-  state.bestCombo = Math.max(state.currentStreak, state.bestCombo);
+  state.bestCombo = Math.max(state.currentStreak, state.bestCombo)
 
   if (!isDduMode.value && state.comboIndex > 4) {
-    endGame();
+    endGame()
   } else if (isDduMode.value && state.comboIndex > 4) {
-    state.secretEndTime = new Date().getTime();
-    state.secretDurationTime =
-      (state.secretEndTime - state.secretStartTime) / 1000;
+    state.secretEndTime = new Date().getTime()
+    state.secretDurationTime = (state.secretEndTime - state.secretStartTime) / 1000
 
-    checkForSecretBonus();
-    regenerateGame();
+    checkForSecretBonus()
+    regenerateGame()
   }
 }
 
@@ -222,12 +209,12 @@ function handleFinishCheck() {
  * Function to handle record keeping for matching a combo.
  */
 function handleMatch() {
-  state.combination[state.comboIndex++].active = true;
-  state.currentStreak += 1;
-  state.isMissed = false;
+  state.combination[state.comboIndex++].active = true
+  state.currentStreak += 1
+  state.isMissed = false
 
   if (isDduMode.value) {
-    state.secretScore += 1;
+    state.secretScore += 1
   }
 }
 
@@ -235,57 +222,44 @@ function handleMatch() {
  * Function to handle record keeping for missing a combo
  */
 function handleMiss() {
-  state.currentStreak = 0;
-  state.missedCount += 1;
-  state.isMissed = true;
+  state.currentStreak = 0
+  state.missedCount += 1
+  state.isMissed = true
 
   if (isDduMode.value) {
-    state.secretScore -= 1 + 100 * state.secretRoundCount;
-    state.secretPerfectRoundCount = 0;
+    state.secretScore -= 1 + 100 * state.secretRoundCount
+    state.secretPerfectRoundCount = 0
   }
 
   setTimeout(() => {
-    state.isMissed = false;
-  }, 300); // sync toggling missed flag to time of shake animation 0.3s
+    state.isMissed = false
+  }, 300) // sync toggling missed flag to time of shake animation 0.3s
 }
 
 /**
  * Method to store a user's game stats to persist in localStorage
  */
 function saveGameStats() {
-  let combarrowStats: GameStatistics = JSON.parse(
-    localStorage.getItem("combarrowStats") || "null"
-  );
+  let combarrowStats: GameStatistics = JSON.parse(localStorage.getItem('combarrowStats') || 'null')
 
   if (combarrowStats === null) {
     combarrowStats = {
       numGames: isDduMode.value ? 0 : 1,
       perfectCount: isDduMode.value ? 0 : state.bestCombo === 5 ? 1 : 0,
       bestTime: isDduMode.value ? 0 : state.durationTime,
-      secretRun: isDduMode.value ? state.finalSecretDuration : 0,
-    };
+      secretRun: isDduMode.value ? state.finalSecretDuration : 0
+    }
   } else if (isDduMode.value) {
-    combarrowStats.secretRun = Math.max(
-      combarrowStats.secretRun,
-      state.finalSecretDuration
-    );
+    combarrowStats.secretRun = Math.max(combarrowStats.secretRun, state.finalSecretDuration)
   } else {
-    combarrowStats.numGames += 1;
+    combarrowStats.numGames += 1
     combarrowStats.perfectCount =
-      state.bestCombo === 5
-        ? combarrowStats.perfectCount + 1
-        : combarrowStats.perfectCount;
-    combarrowStats.bestTime = Math.min(
-      combarrowStats.bestTime,
-      state.durationTime
-    );
-    combarrowStats.secretRun = Math.max(
-      combarrowStats.secretRun,
-      state.finalSecretDuration
-    );
+      state.bestCombo === 5 ? combarrowStats.perfectCount + 1 : combarrowStats.perfectCount
+    combarrowStats.bestTime = Math.min(combarrowStats.bestTime, state.durationTime)
+    combarrowStats.secretRun = Math.max(combarrowStats.secretRun, state.finalSecretDuration)
   }
 
-  localStorage.setItem("combarrowStats", JSON.stringify(combarrowStats));
+  localStorage.setItem('combarrowStats', JSON.stringify(combarrowStats))
 }
 
 /**
@@ -294,19 +268,19 @@ function saveGameStats() {
  * @param value flag to turn off key listening
  */
 function activateHelp(value: boolean) {
-  state.isDelay = value;
+  state.isDelay = value
 }
 
 /******************************************************
  * LIFECYCLE HOOKS
  ******************************************************/
 onMounted(() => {
-  window.addEventListener("keyup", listenKey);
-});
+  window.addEventListener('keyup', listenKey)
+})
 
 onUnmounted(() => {
-  window.removeEventListener("keyup", listenKey);
-});
+  window.removeEventListener('keyup', listenKey)
+})
 
 /******************************************************
  * SECRET GAME HELPERS
@@ -316,12 +290,12 @@ onUnmounted(() => {
  */
 function startSecretTimer() {
   return setInterval(function () {
-    state.secretScore -= state.missedCount + 1;
+    state.secretScore -= state.missedCount + 1
 
     if (state.secretScore <= 0) {
-      endSecretGame();
+      endSecretGame()
     }
-  });
+  })
 }
 
 /**
@@ -333,23 +307,23 @@ function startSecretTimer() {
  */
 function checkSecretCombo(keyCode: number, shiftKey = false) {
   if (!shiftKey) {
-    return;
+    return
   }
 
   // Check for secret mode
   if (state.secretCombo === 0 && keyCode === DirectionCodes.Down) {
-    state.secretCombo += 1;
-    return;
+    state.secretCombo += 1
+    return
   }
   if (state.secretCombo === 1 && keyCode === DirectionCodes.Down) {
-    state.secretCombo += 1;
-    return;
+    state.secretCombo += 1
+    return
   }
   // If you hit here, you have found the secret!
   if (state.secretCombo === 2 && keyCode === DirectionCodes.Up) {
-    state.secretCombo += 1;
-    state.secretScore = 5000;
-    return;
+    state.secretCombo += 1
+    state.secretScore = 5000
+    return
   }
 }
 
@@ -359,24 +333,24 @@ function checkSecretCombo(keyCode: number, shiftKey = false) {
 function regenerateGame() {
   // increment perfect round counts
   if (!state.isMissed && state.comboIndex > 4) {
-    state.secretPerfectRoundCount += 1;
+    state.secretPerfectRoundCount += 1
   } else {
-    state.secretPerfectRoundCount = 0;
+    state.secretPerfectRoundCount = 0
   }
 
-  state.comboIndex = 0;
-  state.isDelay = true;
-  state.secretRoundCount += 1;
+  state.comboIndex = 0
+  state.isDelay = true
+  state.secretRoundCount += 1
 
   setTimeout(() => {
-    state.missedCount = 0;
-    state.isDelay = false;
-    state.combination = generateComboSet();
-    state.secretStartTime = new Date().getTime();
-    state.secretEndTime = 0;
-    state.secretDurationTime = 0;
-    state.secretStartTime = new Date().getTime();
-  }, 500);
+    state.missedCount = 0
+    state.isDelay = false
+    state.combination = generateComboSet()
+    state.secretStartTime = new Date().getTime()
+    state.secretEndTime = 0
+    state.secretDurationTime = 0
+    state.secretStartTime = new Date().getTime()
+  }, 500)
 }
 
 /**
@@ -388,15 +362,15 @@ function regenerateGame() {
  */
 function checkForSecretBonus() {
   if (!state.isMissed && state.comboIndex > 4) {
-    state.secretScore += 5 * state.secretPerfectRoundCount;
+    state.secretScore += 5 * state.secretPerfectRoundCount
   }
 
   if (state.secretDurationTime < 1) {
-    state.secretScore += 5000;
+    state.secretScore += 5000
   } else if (state.secretDurationTime >= 1 && state.secretDurationTime <= 1.5) {
-    state.secretScore += 3000;
+    state.secretScore += 3000
   } else if (state.secretDurationTime > 1.5 && state.secretDurationTime < 2.0) {
-    state.secretScore += 1500;
+    state.secretScore += 1500
   }
 }
 
@@ -404,24 +378,29 @@ function checkForSecretBonus() {
  * Method to stop the secret game and go back to normal mode.
  */
 function endSecretGame() {
-  clearInterval(state.secretInterval);
-  state.finalSecretEndTime = new Date().getTime();
-  state.finalSecretDuration =
-    (state.finalSecretEndTime - state.finalSecretStartTime) / 1000;
-  saveGameStats();
-  resetState();
-  state.secretCombo = 0;
+  clearInterval(state.secretInterval)
+  state.finalSecretEndTime = new Date().getTime()
+  state.finalSecretDuration = (state.finalSecretEndTime - state.finalSecretStartTime) / 1000
+  saveGameStats()
+  resetState()
+  state.secretCombo = 0
 }
 </script>
 
 <template>
-  <HelpButton @activeHelp="activateHelp" @resetStats="resetState" />
+  <HelpButton
+    @activeHelp="activateHelp"
+    @resetStats="resetState"
+  />
   <StatsButton @activeStats="activateHelp" />
 
   <GameTitle :ddu-mode="isDduMode" />
 
   <section>
-    <div class="secret-score" :class="{ hide: !isDduMode }">
+    <div
+      class="secret-score"
+      :class="{ hide: !isDduMode }"
+    >
       {{ state.secretScore.toLocaleString() }}
     </div>
     <TheGrid>
@@ -458,9 +437,10 @@ function endSecretGame() {
             :miss-count="state.missedCount"
           />
 
-          <CustomButton @on-click="restartGame" :is-end="true">
-            RESTART
-          </CustomButton>
+          <CustomButton
+            @on-click="restartGame"
+            :is-end="true"
+          > RESTART </CustomButton>
         </div>
       </OneRow>
     </TheGrid>
@@ -471,6 +451,7 @@ function endSecretGame() {
 .secret-score.hide {
   visibility: hidden;
 }
+
 .secret-score {
   visibility: visible;
   font-size: 48px;
@@ -491,33 +472,43 @@ function endSecretGame() {
   0% {
     transform: translate(1px, 1px) rotate(0deg);
   }
+
   10% {
     transform: translate(-1px, -2px) rotate(-1deg);
   }
+
   20% {
     transform: translate(-3px, 0px) rotate(1deg);
   }
+
   30% {
     transform: translate(3px, 2px) rotate(0deg);
   }
+
   40% {
     transform: translate(1px, -1px) rotate(1deg);
   }
+
   50% {
     transform: translate(-1px, 2px) rotate(-1deg);
   }
+
   60% {
     transform: translate(-3px, 1px) rotate(0deg);
   }
+
   70% {
     transform: translate(3px, 1px) rotate(-1deg);
   }
+
   80% {
     transform: translate(-1px, -1px) rotate(1deg);
   }
+
   90% {
     transform: translate(1px, 2px) rotate(0deg);
   }
+
   100% {
     transform: translate(1px, -2px) rotate(-1deg);
   }

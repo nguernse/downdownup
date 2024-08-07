@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import StatsBar from "./StatsBar.vue";
+import StatsBar from './StatsBar.vue'
 
 defineProps<{
-  bestCombo: number;
-  durationTime: number;
-  guessCount: number;
-  missCount: number;
-}>();
+  bestCombo: number
+  durationTime: number
+  guessCount: number
+  missCount: number
+}>()
 </script>
 
 <template>
@@ -16,8 +16,7 @@ defineProps<{
     <li>
       <span class="label">Streak</span>
       <span class="value"
-        >{{ bestCombo }}
-        {{ bestCombo === 5 && missCount === 0 ? "🏅" : "" }}</span
+        >{{ bestCombo }} {{ bestCombo === 5 && missCount === 0 ? '🏅' : '' }}</span
       >
     </li>
 
@@ -27,14 +26,14 @@ defineProps<{
         >{{ durationTime.toFixed(2) }}s
         {{
           durationTime < 1.25
-            ? "🤯"
+            ? '🤯'
             : durationTime < 1.5
-            ? "🔥🔥"
-            : durationTime < 1.75
-            ? "🔥"
-            : durationTime < 2
-            ? "🏃"
-            : ""
+              ? '🔥🔥'
+              : durationTime < 1.75
+                ? '🔥'
+                : durationTime < 2
+                  ? '🏃'
+                  : ''
         }}</span
       >
     </li>

@@ -1,13 +1,11 @@
 <script setup lang="ts">
 defineProps<{
-  dduMode: boolean;
-}>();
+  dduMode: boolean
+}>()
 </script>
 
 <template>
-  <h1 class="game-title">
-    Down Down <span :class="{ ddu: dduMode }">Up</span>
-  </h1>
+  <h1 class="game-title">Down Down <span :class="{ ddu: dduMode }">Up</span></h1>
 </template>
 
 <style scoped>
